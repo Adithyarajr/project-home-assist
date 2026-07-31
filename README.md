@@ -17,6 +17,7 @@ Finding reliable domestic help is often fragmented and unverified. This platform
 
 ## Features
 ### Phase 1 (MVP)
+•⁠  ⁠User registration and login
 •⁠  ⁠Maid profile management
 •⁠  ⁠Search and filtering
 •⁠  ⁠Admin dashboard
