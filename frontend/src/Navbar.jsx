@@ -1,60 +1,73 @@
+import { useState } from "react";
+
 function Navbar({ currentPage, onNavigate }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  function go(page) {
+    onNavigate(page);
+    setMenuOpen(false);
+  }
+
   return (
     <nav className="navbar">
       <div
         className="navbar-logo"
-        onClick={() => onNavigate("home")}
+        onClick={() => go("home")}
         style={{ cursor: "pointer" }}
       >
         Project Home Assist
       </div>
 
-      <div className="navbar-links">
+      <button
+        className="menu-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+      >
+        {menuOpen ? "✕" : "☰"}
+      </button>
 
+      <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
         <button
           className={`navbar-link ${currentPage === "home" ? "active" : ""}`}
-          onClick={() => onNavigate("home")}
+          onClick={() => go("home")}
         >
           Home
         </button>
 
         <button
           className={`navbar-link ${currentPage === "browse" ? "active" : ""}`}
-          onClick={() => onNavigate("browse")}
+          onClick={() => go("browse")}
         >
           Browse Helpers
         </button>
 
         <button
           className={`navbar-link ${currentPage === "services" ? "active" : ""}`}
-          onClick={() => onNavigate("services")}
+          onClick={() => go("services")}
         >
           List Your Services
         </button>
 
         <button
-          className={`nav-btn dashboard-btn ${
-            currentPage === "bookings" ? "active" : ""
-          }`}
-          onClick={() => onNavigate("bookings")}
+          className={`nav-btn dashboard-btn ${currentPage === "bookings" ? "active" : ""}`}
+          onClick={() => go("bookings")}
         >
           Dashboard
         </button>
 
         <button
           className="nav-btn login-btn"
-          onClick={() => onNavigate("login")}
+          onClick={() => go("login")}
         >
           Login
         </button>
 
         <button
           className="nav-btn signup-btn"
-          onClick={() => onNavigate("signup")}
+          onClick={() => go("signup")}
         >
           Sign Up
         </button>
-
       </div>
     </nav>
   );
