@@ -775,3 +775,95 @@ main h2 {
   margin: 0;
   line-height: 1.5;
 }
+
+/* ==========================
+   Mobile Responsiveness
+========================== */
+
+html, body {
+  overflow-x: hidden;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #e5e7eb;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+@media (max-width: 860px) {
+  .navbar {
+    padding: 18px 20px;
+    position: relative;
+  }
+
+  .navbar-logo {
+    font-size: 1.3rem;
+    margin-right: 0;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #0f0d14;
+    border-bottom: 1px solid #2e2440;
+    padding: 20px;
+    z-index: 200;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .navbar-link {
+    text-align: left;
+    padding: 10px 4px;
+  }
+
+  .nav-btn {
+    margin-left: 0;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .hero h1 {
+    font-size: 2.1rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
