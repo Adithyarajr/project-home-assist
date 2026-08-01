@@ -17,9 +17,9 @@ export const helpers = [
     photo: tarunPhoto,
     rating: 4.0,
     reviews: [
-    { author: "Padma", comment: "This nga is NOT punctual, but a decent cook.", rating: 3 },
-    { author: "Dharmendra Pradhan", comment: "Reliable and clean. Would recommend.", rating: 5 },
-  ],
+      { author: "Ananya", comment: "Good cook overall, food is always tasty. Timing could be a bit more consistent though.", rating: 3 },
+      { author: "Vikram", comment: "Been with us for months now. Reliable, keeps the kitchen clean, and adapts well to our family's taste.", rating: 5 },
+    ],
   },
   {
     id: 2,
@@ -32,9 +32,9 @@ export const helpers = [
     photo: niladriPhoto,
     rating: 2.0,
     reviews: [
-    { author: "Rohith", comment: "No idea what housekeeping he does,as I am homeless.Regardless, he's chill like that.", rating: 2 },
-    { author: "Preetam", comment: "Good housekeeper and all, but hes always on something, quite entertaining.", rating: 2 },
-  ],
+      { author: "Meera", comment: "Work is average, misses spots sometimes and needs reminders about the schedule.", rating: 2 },
+      { author: "Arjun", comment: "Polite and friendly, but not very thorough. Had to follow up on a few things more than once.", rating: 2 },
+    ],
   },
   {
     id: 3,
@@ -43,13 +43,13 @@ export const helpers = [
     experience: "8 years",
     location: "Kammanahalli, Bengaluru",
     verified: true,
-    phone: "+91 8925723421",
+    phone: "+91 8925723434",
     photo: naeemPhoto,
     rating: 5.0,
     reviews: [
-    { author: "Zaynah", comment: "Sorry to come in bw both of you...", rating: 5 },
-    { author: "Uzair Baloch", comment: "Very Reliable.Keeps my kids away from Hamza.", rating: 5 },
-  ],
+      { author: "Kavya", comment: "Absolutely wonderful with kids. My daughter looks forward to the days he's around.", rating: 5 },
+      { author: "Rahul", comment: "Extremely reliable and attentive. Never late, and always keeps us updated during the day.", rating: 5 },
+    ],
   },
   {
     id: 4,
@@ -58,13 +58,13 @@ export const helpers = [
     experience: "6 years",
     location: "Kammanahalli, Bengaluru",
     verified: true,
-    phone: "+91 7892232942",
+    phone: "+91 7892232941",
     photo: umairPhoto,
     rating: 3.0,
     reviews: [
-    { author: "Tarun Yadav", comment: "This nga disagrees with everything I say, but can WASH them dishes.", rating: 3 },
-    { author: "Lakshmi Ammal", comment: "Biggest football larper ive ever seen, switches up on the team he supports, but still a good dishwasher.", rating: 3 },
-  ],
+      { author: "Sneha", comment: "Does the job well, kitchen is spotless after he's done. Sometimes takes a little longer than expected.", rating: 3 },
+      { author: "Arun", comment: "Dependable and consistent. Would appreciate a bit more flexibility with timing on weekends.", rating: 3 },
+    ],
   },
   {
     id: 5,
@@ -73,13 +73,13 @@ export const helpers = [
     experience: "4 years",
     location: "Horamavu Agara, Bengaluru",
     verified: false,
-    phone: "+91 8618354430",
+    phone: "+91 8618354431",
     photo: nirpeshPhoto,
     rating: 4.0,
     reviews: [
-    { author: "Glory Satish", comment: "He is good with his hands...", rating: 4 },
-    { author: "Thalapathy Vijay", comment: "Very knowledgeable about plants.", rating: 4 },
-  ],
+      { author: "Pooja", comment: "Very knowledgeable about plants and takes real pride in the garden's upkeep.", rating: 4 },
+      { author: "Karthik", comment: "Garden has never looked better since he started. Punctual and easy to communicate with.", rating: 4 },
+    ],
   },
   {
     id: 6,
@@ -88,12 +88,12 @@ export const helpers = [
     experience: "10 years",
     location: "Kasturi Nagar, Bengaluru",
     verified: false,
-    phone: "+91 9019661210",
+    phone: "+91 9019661211",
     photo: thamarPhoto,
     rating: 2.5,
     reviews: [
-    { author: "Kinjal", comment: "Very caring and attentive.", rating: 3 },
-    { author: "Auto Driver", comment: "He takes care of my grandparents, while i complete my rides.", rating: 2 },
-  ],
+      { author: "Divya", comment: "Caring and patient with my grandmother, though communication about daily updates could improve.", rating: 3 },
+      { author: "Rohan", comment: "Generally good, but has missed a couple of scheduled visits without much notice.", rating: 2 },
+    ],
   }
 ]
