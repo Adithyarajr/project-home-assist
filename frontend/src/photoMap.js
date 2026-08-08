@@ -17,7 +17,7 @@ export const photoMap = {
   4: umairPhoto,
   5: nirpeshPhoto,
   6: thamarPhoto,
-  7: jacobPhoto,
-  8: yaashPhoto,
-  9: samarthPhoto,
+  13: jacobPhoto,
+  14: yaashPhoto,
+  15: samarthPhoto,
 }
