@@ -1,11 +1,33 @@
+import { useState, useEffect } from 'react'
+import { supabase } from './supabaseClient'
+import { photoMap } from './photoMap'
+
 function HelperDetail({ helper, onClose, onBook }) {
+  const [reviews, setReviews] = useState([])
+
+  useEffect(() => {
+    async function fetchReviews() {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('helper_id', helper.id)
+
+      if (error) {
+        console.error('Supabase error:', error)
+      } else {
+        setReviews(data)
+      }
+    }
+    fetchReviews()
+  }, [helper.id])
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>✕</button>
 
         <div className="detail-main">
-          <img src={helper.photo} alt={helper.name} className="detail-photo" />
+          <img src={photoMap[helper.id]} alt={helper.name} className="detail-photo" />
           <div>
             <h2>{helper.name}</h2>
             <p>{helper.role} · {helper.experience}</p>
@@ -27,8 +49,8 @@ function HelperDetail({ helper, onClose, onBook }) {
 
         <div className="detail-reviews">
           <h3>Customer Reviews</h3>
-          {helper.reviews?.map((review, index) => (
-            <div key={index} className="review">
+          {reviews.map((review) => (
+            <div key={review.id} className="review">
               <div className="review-avatar">
                 {review.author.charAt(0).toUpperCase()}
               </div>

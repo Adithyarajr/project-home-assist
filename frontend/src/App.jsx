@@ -1,8 +1,7 @@
 import Home from './Home'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from './supabaseClient'
 import './App.css'
-
-import { helpers } from './mockData'
 
 import Navbar from './Navbar'
 import HelperCard from './HelperCard'
@@ -15,6 +14,21 @@ import BecomeHelper from './BecomeHelper'
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
   const [searchTerm, setSearchTerm] = useState('')
+  const [helpers, setHelpers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchHelpers() {
+      const { data, error } = await supabase.from('helpers').select('*')
+      if (error) {
+        console.error('Supabase error:', error)
+      } else {
+        setHelpers(data)
+      }
+      setLoading(false)
+    }
+    fetchHelpers()
+  }, [])
 
   const filteredHelpers = helpers.filter((helper) => {
     const term = searchTerm.toLowerCase()
@@ -35,9 +49,10 @@ function App() {
 
       <div className="app">
         {/* Home Page */}
-{currentPage === 'home' && (
-  <Home onNavigate={setCurrentPage} />
-)}
+        {currentPage === 'home' && (
+          <Home onNavigate={setCurrentPage} helpers={helpers} />
+        )}
+
         {/* Browse Helpers Page */}
         {currentPage === 'browse' && (
           <>
@@ -58,7 +73,9 @@ function App() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
 
-              {filteredHelpers.length === 0 ? (
+              {loading ? (
+                <p className="no-results">Loading helpers...</p>
+              ) : filteredHelpers.length === 0 ? (
                 <p className="no-results">
                   No helpers match your search.
                 </p>
@@ -77,15 +94,24 @@ function App() {
         )}
 
         {/* My Bookings */}
-        {currentPage === 'bookings' && <MyBookings onNavigate={setCurrentPage} />}
+        {currentPage === 'bookings' && (
+          <MyBookings onNavigate={setCurrentPage} />
+        )}
 
         {/* Login */}
-        {currentPage === 'login' && <Login onNavigate={setCurrentPage} />}
+        {currentPage === 'login' && (
+          <Login onNavigate={setCurrentPage} />
+        )}
 
         {/* Sign Up */}
-        {currentPage === 'signup' && <Signup onNavigate={setCurrentPage} />}
+        {currentPage === 'signup' && (
+          <Signup onNavigate={setCurrentPage} />
+        )}
+
         {/* List Your Services */}
-        {currentPage === 'services' && <BecomeHelper />}
+        {currentPage === 'services' && (
+          <BecomeHelper />
+        )}
       </div>
     </>
   )

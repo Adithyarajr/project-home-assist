@@ -4,6 +4,9 @@ import naeemPhoto from './assets/naeem.jpg'
 import umairPhoto from './assets/umair.jpg'
 import nirpeshPhoto from './assets/nirpesh.jpg'
 import thamarPhoto from './assets/thamar.jpg'
+import jacobPhoto from './assets/jacob.jpg'
+import yaashPhoto from './assets/yaash.jpg'
+import samarthPhoto from './assets/samarth.jpg'
 
 export const helpers = [
   {
@@ -72,7 +75,7 @@ export const helpers = [
     role: "Gardener",
     experience: "4 years",
     location: "Horamavu Agara, Bengaluru",
-    verified: false,
+    verified: true,
     phone: "+91 8618354431",
     photo: nirpeshPhoto,
     rating: 4.0,
@@ -87,7 +90,7 @@ export const helpers = [
     role: "Nanny for Elderly",
     experience: "10 years",
     location: "Kasturi Nagar, Bengaluru",
-    verified: false,
+    verified: true,
     phone: "+91 9019661211",
     photo: thamarPhoto,
     rating: 2.5,
@@ -95,5 +98,50 @@ export const helpers = [
       { author: "Divya", comment: "Caring and patient with my grandmother, though communication about daily updates could improve.", rating: 3 },
       { author: "Rohan", comment: "Generally good, but has missed a couple of scheduled visits without much notice.", rating: 2 },
     ],
-  }
-]
+  },
+  {
+    id: 7,
+    name: "Jacob John",
+    role: "Nanny for Pets",
+    experience: "7 years",
+    location: "Dodgubbi, Bengaluru",
+    verified: true,
+    phone: "+91 9876543210",
+    photo: jacobPhoto,
+    rating: 4.5,
+    reviews: [
+      { author: "Aarav", comment: "My dog loves him! Very attentive and caring. Always sends updates and photos.", rating: 5 },
+      { author: "Diya", comment: "Reliable and trustworthy. My cat is always happy when he comes over.", rating: 4 },
+    ],
+  },
+  {
+    id: 8,
+    name: "Yaash Bokam",
+    role: "Housekeeper",
+    experience: "5 years",
+    location: "Byrathi, Bengaluru",
+    verified: true,
+    phone: "+91 9876543210",
+    photo: yaashPhoto,
+    rating: 1.0,
+    reviews: [
+      { author: "Kabir", comment: "Very organized and keeps the house spotless. Always arrives on time.", rating: 4 },
+      { author: "Aishwarya", comment: "Friendly and hardworking. Makes the house feel like home.", rating: 4 },
+    ],
+  },
+  {
+    id: 9,
+    name: "Samarth Khatawane",
+    role: "Cook",
+    experience: "6 years",
+    location: "Devanahalli, Bengaluru",
+    verified: true,
+    phone: "+91 9876543210",
+    photo: samarthPhoto,
+    rating: 3.5,
+    reviews: [ 
+      { author: "Ravi", comment: "Good cook, but could improve on timing.", rating: 3 },
+      { author: "Tanya", comment: "Consistent and reliable. Keeps the kitchen clean.", rating: 4 },
+    ],
+  },
+];

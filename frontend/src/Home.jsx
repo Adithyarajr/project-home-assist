@@ -1,7 +1,6 @@
-import { helpers } from "./mockData";
 import HelperCard from "./HelperCard";
 
-function Home({ onNavigate }) {
+function Home({ onNavigate, helpers }) {
   return (
     <>
       {/* Hero Section */}
