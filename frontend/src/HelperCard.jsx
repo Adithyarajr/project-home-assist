@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import BookingForm from './BookingForm'
 import HelperDetail from './HelperDetail'
-import { photoMap } from './photoMap'
 
 function HelperCard({ helper }) {
   const [showForm, setShowForm] = useState(false)
@@ -10,7 +9,7 @@ function HelperCard({ helper }) {
   return (
     <>
       <div className="helper-card" onClick={() => setShowDetail(true)}>
-        <img src={photoMap[helper.id]} alt={helper.name} className="helper-photo" />
+        <img src={helper.photo_url} alt={helper.name} className="helper-photo" />
         <h3>{helper.name}</h3>
         <p>{helper.role} · {helper.experience}</p>
         <p>{helper.location}</p>

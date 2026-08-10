@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { photoMap } from './photoMap'
 
 function HelperDetail({ helper, onClose, onBook }) {
   const [reviews, setReviews] = useState([])
@@ -27,7 +26,7 @@ function HelperDetail({ helper, onClose, onBook }) {
         <button className="close-btn" onClick={onClose}>✕</button>
 
         <div className="detail-main">
-          <img src={photoMap[helper.id]} alt={helper.name} className="detail-photo" />
+          <img src={helper.photo_url} alt={helper.name} className="detail-photo" />
           <div>
             <h2>{helper.name}</h2>
             <p>{helper.role} · {helper.experience}</p>
