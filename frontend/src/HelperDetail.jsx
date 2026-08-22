@@ -33,6 +33,7 @@ function HelperDetail({ helper, onClose, onBook }) {
             <p>{helper.location}</p>
             <p className="rating">⭐ {helper.rating}</p>
             <p>{helper.phone}</p>
+            <p className="salary">₹{helper.salary}/month</p>
             {helper.verified ? (
               <span className="badge verified">✓ Verified</span>
             ) : (

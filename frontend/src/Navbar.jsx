@@ -1,11 +1,18 @@
 import { useState } from "react";
+import { supabase } from "./supabaseClient";
 
-function Navbar({ currentPage, onNavigate }) {
+function Navbar({ currentPage, onNavigate, user }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   function go(page) {
     onNavigate(page);
     setMenuOpen(false);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setMenuOpen(false);
+    onNavigate("home");
   }
 
   return (
@@ -55,19 +62,21 @@ function Navbar({ currentPage, onNavigate }) {
           Dashboard
         </button>
 
-        <button
-          className="nav-btn login-btn"
-          onClick={() => go("login")}
-        >
-          Login
-        </button>
+        {user ? (
+          <button className="nav-btn logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        ) : (
+          <>
+            <button className="nav-btn login-btn" onClick={() => go("login")}>
+              Login
+            </button>
 
-        <button
-          className="nav-btn signup-btn"
-          onClick={() => go("signup")}
-        >
-          Sign Up
-        </button>
+            <button className="nav-btn signup-btn" onClick={() => go("signup")}>
+              Sign Up
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

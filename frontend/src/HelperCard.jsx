@@ -14,6 +14,7 @@ function HelperCard({ helper }) {
         <p>{helper.role} · {helper.experience}</p>
         <p>{helper.location}</p>
         <p className="rating">⭐ {helper.rating}</p>
+        <p className="salary">₹{helper.salary}/month</p>
         <p>{helper.phone}</p>
         {helper.verified ? (
           <span className="badge verified">✓ Verified</span>

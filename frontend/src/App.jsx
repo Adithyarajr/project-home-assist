@@ -16,6 +16,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [helpers, setHelpers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     async function fetchHelpers() {
@@ -28,6 +29,20 @@ function App() {
       setLoading(false)
     }
     fetchHelpers()
+  }, [])
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
   const filteredHelpers = helpers.filter((helper) => {
@@ -45,6 +60,7 @@ function App() {
       <Navbar
         currentPage={currentPage}
         onNavigate={setCurrentPage}
+        user={user}
       />
 
       <div className="app">
