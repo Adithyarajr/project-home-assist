@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
 
-function BecomeHelper({user}) {
+function BecomeHelper() {
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -47,16 +47,15 @@ function BecomeHelper({user}) {
     }
 
     const { error } = await supabase.from('helpers').insert({
-  name: form.name,
-  phone: form.phone,
-  location: `${form.area}, ${form.city}`,
-  role: form.role,
-  experience: `${form.experience} years`,
-  salary: form.salary,
-  photo_url: photoUrl,
-  verified: false,
-  user_id: user.id,
-})
+      name: form.name,
+      phone: form.phone,
+      location: `${form.area}, ${form.city}`,
+      role: form.role,
+      experience: `${form.experience} years`,
+      salary: form.salary,
+      photo_url: photoUrl,
+      verified: false,
+    })
 
     setSubmitting(false)
 

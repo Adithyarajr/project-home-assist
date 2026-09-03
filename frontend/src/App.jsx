@@ -125,13 +125,9 @@ function App() {
         )}
 
         {/* List Your Services */}
-{currentPage === 'services' && (
-  user ? (
-    <BecomeHelper user={user} />
-  ) : (
-    <Login onNavigate={setCurrentPage} />
-  )
-)}
+        {currentPage === 'services' && (
+          <BecomeHelper />
+        )}
       </div>
     </>
   )
