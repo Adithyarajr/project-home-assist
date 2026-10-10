@@ -101,6 +101,7 @@ function App() {
                     <HelperCard
                       key={helper.id}
                       helper={helper}
+                      user={user}
                     />
                   ))}
                 </div>
@@ -111,7 +112,7 @@ function App() {
 
         {/* My Bookings */}
         {currentPage === 'bookings' && (
-          <MyBookings onNavigate={setCurrentPage} />
+          <MyBookings onNavigate={setCurrentPage} user={user} />
         )}
 
         {/* Login */}

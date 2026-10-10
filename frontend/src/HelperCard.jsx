@@ -2,7 +2,7 @@ import { useState } from 'react'
 import BookingForm from './BookingForm'
 import HelperDetail from './HelperDetail'
 
-function HelperCard({ helper }) {
+function HelperCard({ helper, user}) {
   const [showForm, setShowForm] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
 
@@ -46,7 +46,7 @@ function HelperCard({ helper }) {
       )}
 
       {showForm && (
-        <BookingForm helper={helper} onClose={() => setShowForm(false)} />
+        <BookingForm helper={helper} user={user} onClose={() => setShowForm(false)} />
       )}
     </>
   )

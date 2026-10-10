@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
 
-function BookingForm({ helper, onClose }) {
+function BookingForm({ helper, user, onClose }) {
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [date, setDate] = useState('')
@@ -11,6 +11,12 @@ function BookingForm({ helper, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    if (!user) {
+      setError('Please log in to book a helper.')
+      return
+    }
+
     setSubmitting(true)
     setError('')
 
@@ -20,6 +26,7 @@ function BookingForm({ helper, onClose }) {
       customer_phone: customerPhone,
       start_date: date,
       notes: notes,
+      user_id: user.id,
     })
 
     setSubmitting(false)
@@ -38,6 +45,12 @@ function BookingForm({ helper, onClose }) {
       <div className="modal">
         <h3>Book {helper.name}</h3>
         <p>{helper.role} · {helper.location}</p>
+
+        {!user && (
+          <p style={{ color: '#fbbf24', fontSize: '0.9rem' }}>
+            You need to be logged in to book a helper. Please close this and log in first.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit}>
           <label>
@@ -85,7 +98,7 @@ function BookingForm({ helper, onClose }) {
             <button type="button" className="cancel-btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="book-btn" disabled={submitting}>
+            <button type="submit" className="book-btn" disabled={submitting || !user}>
               {submitting ? 'Booking...' : 'Confirm Booking'}
             </button>
           </div>
