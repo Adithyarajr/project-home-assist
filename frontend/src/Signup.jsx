@@ -27,32 +27,33 @@ function Signup({ onNavigate }) {
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-    })
-
-    if (error) {
-      setSubmitting(false)
-      setMessage(error.message)
-      return
-    }
-
-    const userId = data.user.id
-
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: userId,
-      full_name: form.fullName,
-      phone: form.phone,
-      user_type: userType,
+      options: {
+        data: {
+          full_name: form.fullName,
+          phone: form.phone,
+          user_type: userType,
+        },
+      },
     })
 
     setSubmitting(false)
 
-    if (profileError) {
-      setMessage('Account created, but profile setup failed. Please contact support.')
-      console.error(profileError)
+    if (error) {
+      setMessage(error.message)
       return
     }
 
-    onNavigate(destination)
+    // Supabase returns a user with no identities when the email is already registered
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setMessage('An account with this email already exists. Please log in instead.')
+      return
+    }
+
+    if (data.session) {
+      onNavigate(destination)
+    } else {
+      setMessage('Account created! Check your email to confirm it, then log in.')
+    }
   }
 
   return (

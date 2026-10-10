@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
 
-function BecomeHelper() {
+function BecomeHelper({ user }) {
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -21,6 +21,12 @@ function BecomeHelper() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!user) {
+      setMessage('Please log in before listing your services.')
+      return
+    }
+
     setSubmitting(true)
     setMessage('')
 
@@ -55,6 +61,7 @@ function BecomeHelper() {
       salary: form.salary,
       photo_url: photoUrl,
       verified: false,
+      user_id: user.id,
     })
 
     setSubmitting(false)
