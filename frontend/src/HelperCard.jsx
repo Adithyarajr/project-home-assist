@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import BookingForm from './BookingForm'
 import HelperDetail from './HelperDetail'
+import Avatar from "./Avatar";
 
 function HelperCard({ helper, user}) {
   const [showForm, setShowForm] = useState(false)
@@ -9,7 +10,7 @@ function HelperCard({ helper, user}) {
   return (
     <>
       <div className="helper-card" onClick={() => setShowDetail(true)}>
-        <img src={helper.photo_url} alt={helper.name} className="helper-photo" />
+        <Avatar name={helper.name} url={helper.photo_url} className="helper-photo" />
         <h3>{helper.name}</h3>
         <p>{helper.role} · {helper.experience}</p>
         <p>{helper.location}</p>
