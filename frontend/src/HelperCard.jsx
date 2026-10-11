@@ -14,7 +14,11 @@ function HelperCard({ helper, user}) {
         <h3>{helper.name}</h3>
         <p>{helper.role} · {helper.experience}</p>
         <p>{helper.location}</p>
-        <p className="rating">⭐ {helper.rating}</p>
+        {helper.rating != null ? (
+  <p className="rating">⭐ {helper.rating}</p>
+) : (
+  <p className="no-rating">No ratings yet</p>
+)}
         <p className="salary">₹{helper.salary}/month</p>
         <p>{helper.phone}</p>
         {helper.verified ? (

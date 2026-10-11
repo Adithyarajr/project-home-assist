@@ -953,3 +953,121 @@ html, body {
 .detail-photo.avatar-fallback {
   font-size: 2.4rem;
 }
+/* Booking status + helper actions */
+.badge.declined {
+  background: #450a0a;
+  color: #f87171;
+}
+
+.dash-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.accept-btn,
+.decline-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.accept-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+}
+
+.accept-btn:hover {
+  background: #15803d;
+}
+
+.decline-btn {
+  background: transparent;
+  color: #f87171;
+  border: 1px solid #7f1d1d;
+}
+
+.decline-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.accept-btn:disabled,
+.decline-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dash-error {
+  color: #f87171;
+  font-size: 0.9rem;
+  text-align: center;
+}
+/* Ratings */
+.no-rating {
+  color: #6b7280;
+}
+
+.dash-card-body p.no-rating,
+.helper-card p.no-rating,
+.detail-main p.no-rating {
+  color: #6b7280;
+}
+
+.rate-box {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2a2a35;
+}
+
+.rate-box h5 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+.star-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.star-btn.active {
+  color: #facc15;
+}
+
+.rate-box textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  background: #121218;
+  border: 1px solid #2a2a35;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e5e7eb;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.rate-box .book-btn {
+  width: auto;
+  padding: 10px 24px;
+}
+
+.your-review {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2a2a35;
+}
