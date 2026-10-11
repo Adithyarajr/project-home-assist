@@ -10,6 +10,8 @@ import MyBookings from './MyBookings'
 import Login from './Login'
 import Signup from './Signup'
 import BecomeHelper from './BecomeHelper'
+import ForgotPassword from './ForgotPassword'
+import ResetPassword from './ResetPassword'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -36,8 +38,11 @@ function App() {
       setUser(data.user)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      if (event === 'PASSWORD_RECOVERY') {
+        setCurrentPage('reset')
+      }
     })
 
     return () => {
@@ -66,7 +71,7 @@ function App() {
       <div className="app">
         {/* Home Page */}
         {currentPage === 'home' && (
-          <Home onNavigate={setCurrentPage} helpers={helpers} />
+          <Home onNavigate={setCurrentPage} helpers={helpers} user={user} />
         )}
 
         {/* Browse Helpers Page */}
@@ -110,7 +115,7 @@ function App() {
           </>
         )}
 
-        {/* My Bookings */}
+        {/* Dashboard */}
         {currentPage === 'bookings' && (
           <MyBookings onNavigate={setCurrentPage} user={user} />
         )}
@@ -125,14 +130,24 @@ function App() {
           <Signup onNavigate={setCurrentPage} />
         )}
 
-       {/* List Your Services */}
-{currentPage === 'services' && (
-  user ? (
-    <BecomeHelper user={user} />
-  ) : (
-    <Login onNavigate={setCurrentPage} />
-  )
-)}
+        {/* Forgot Password */}
+        {currentPage === 'forgot' && (
+          <ForgotPassword onNavigate={setCurrentPage} />
+        )}
+
+        {/* Reset Password */}
+        {currentPage === 'reset' && (
+          <ResetPassword onNavigate={setCurrentPage} />
+        )}
+
+        {/* List Your Services */}
+        {currentPage === 'services' && (
+          user ? (
+            <BecomeHelper user={user} />
+          ) : (
+            <Login onNavigate={setCurrentPage} />
+          )
+        )}
       </div>
     </>
   )

@@ -56,6 +56,12 @@ function Login({ onNavigate }) {
       </form>
 
       <p className="auth-footer">
+        <span className="link-text" onClick={() => onNavigate('forgot')}>
+          Forgot password?
+        </span>
+      </p>
+
+      <p className="auth-footer">
         Don't have an account?{' '}
         <span className="link-text" onClick={() => onNavigate('signup')}>
           Sign Up
