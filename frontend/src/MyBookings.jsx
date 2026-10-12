@@ -10,6 +10,10 @@ function formatDate(d) {
   })
 }
 
+function todayIST() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+}
+
 function Avatar({ name, url }) {
   if (url) {
     return <img src={url} alt={name} className="dash-photo" />
@@ -25,6 +29,21 @@ function StatusBadge({ status }) {
   const s = status ?? 'Pending'
   const cls = s === 'Accepted' ? 'verified' : s === 'Declined' ? 'declined' : 'pending'
   return <span className={`badge ${cls}`}>{s}</span>
+}
+
+function RatingLine({ helper }) {
+  if (helper.rating == null) {
+    return <p className="no-rating">No ratings yet</p>
+  }
+  const n = helper.review_count ?? 0
+  return (
+    <p className="rating">
+      ⭐ {helper.rating}
+      {n > 0 && (
+        <span className="review-count"> ({n} {n === 1 ? 'review' : 'reviews'})</span>
+      )}
+    </p>
+  )
 }
 
 function RatingForm({ booking, user, fullName, onSubmitted }) {
@@ -104,10 +123,11 @@ function RatingForm({ booking, user, fullName, onSubmitted }) {
 function MyBookings({ onNavigate, user }) {
   const [userType, setUserType] = useState(null)
   const [fullName, setFullName] = useState('')
-  const [bookings, setBookings] = useState([])
+  const [myListings, setMyListings] = useState([])
+  const [incoming, setIncoming] = useState([])
+  const [myBookings, setMyBookings] = useState([])
   const [helpersById, setHelpersById] = useState({})
   const [reviewsByBooking, setReviewsByBooking] = useState({})
-  const [myListings, setMyListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState(null)
   const [actionError, setActionError] = useState('')
@@ -149,45 +169,46 @@ function MyBookings({ onNavigate, user }) {
             .select('*')
             .in('helper_id', ids)
             .order('created_at', { ascending: false })
-          setBookings(data ?? [])
+          setIncoming(data ?? [])
         } else {
-          setBookings([])
+          setIncoming([])
         }
-      } else {
-        const { data } = await supabase
-          .from('bookings')
+      }
+
+      // Bookings this person made as a customer (helpers can book too)
+      const { data: mineBookings } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      const rows = mineBookings ?? []
+      setMyBookings(rows)
+
+      const helperIds = [...new Set(rows.map((b) => b.helper_id).filter(Boolean))]
+      if (helperIds.length > 0) {
+        const { data: hs } = await supabase
+          .from('helpers')
           .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
+          .in('id', helperIds)
+        const map = {}
+        ;(hs ?? []).forEach((h) => {
+          map[h.id] = h
+        })
+        setHelpersById(map)
+      }
 
-        const rows = data ?? []
-        setBookings(rows)
-
-        const helperIds = [...new Set(rows.map((b) => b.helper_id).filter(Boolean))]
-        if (helperIds.length > 0) {
-          const { data: hs } = await supabase
-            .from('helpers')
-            .select('*')
-            .in('id', helperIds)
-          const map = {}
-          ;(hs ?? []).forEach((h) => {
-            map[h.id] = h
-          })
-          setHelpersById(map)
-        }
-
-        const bookingIds = rows.map((b) => b.id)
-        if (bookingIds.length > 0) {
-          const { data: rv } = await supabase
-            .from('reviews')
-            .select('*')
-            .in('booking_id', bookingIds)
-          const rmap = {}
-          ;(rv ?? []).forEach((r) => {
-            rmap[r.booking_id] = r
-          })
-          setReviewsByBooking(rmap)
-        }
+      const bookingIds = rows.map((b) => b.id)
+      if (bookingIds.length > 0) {
+        const { data: rv } = await supabase
+          .from('reviews')
+          .select('*')
+          .in('booking_id', bookingIds)
+        const rmap = {}
+        ;(rv ?? []).forEach((r) => {
+          rmap[r.booking_id] = r
+        })
+        setReviewsByBooking(rmap)
       }
 
       setLoading(false)
@@ -214,7 +235,7 @@ function MyBookings({ onNavigate, user }) {
       return
     }
 
-    setBookings((prev) =>
+    setIncoming((prev) =>
       prev.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))
     )
   }
@@ -224,16 +245,74 @@ function MyBookings({ onNavigate, user }) {
 
     const { data } = await supabase
       .from('helpers')
-      .select('rating')
+      .select('rating, review_count')
       .eq('id', booking.helper_id)
       .maybeSingle()
 
     if (data) {
       setHelpersById((prev) => ({
         ...prev,
-        [booking.helper_id]: { ...prev[booking.helper_id], rating: data.rating },
+        [booking.helper_id]: {
+          ...prev[booking.helper_id],
+          rating: data.rating,
+          review_count: data.review_count,
+        },
       }))
     }
+  }
+
+  function renderMyBooking(b) {
+    const h = helpersById[b.helper_id]
+    const status = b.status ?? 'Pending'
+    const review = reviewsByBooking[b.id]
+    const started = !!b.start_date && b.start_date <= todayIST()
+
+    return (
+      <div key={b.id} className="dash-card">
+        <Avatar name={h?.name} url={h?.photo_url} />
+        <div className="dash-card-body">
+          <h4>{h ? h.name : 'Helper no longer available'}</h4>
+          {h && <p>{h.role} · {h.experience}</p>}
+          {h && <p>{h.location}</p>}
+          {h && <RatingLine helper={h} />}
+          {h?.salary && <p>₹{h.salary}/month</p>}
+          {h && (h.verified ? (
+            <span className="badge verified">✓ Verified</span>
+          ) : (
+            <span className="badge pending">Verification pending</span>
+          ))}
+          <p><strong>Booked for:</strong> {formatDate(b.start_date)}</p>
+          {b.notes && <p><strong>Your note:</strong> {b.notes}</p>}
+          <StatusBadge status={status} />
+          {status === 'Accepted' && (
+            <p>The helper accepted your request and can contact you on the number you provided.</p>
+          )}
+          {status === 'Declined' && (
+            <p>The helper declined this request. You can browse other helpers.</p>
+          )}
+
+          {status === 'Accepted' && (
+            review ? (
+              <div className="your-review">
+                <p className="rating">Your review: ⭐ {review.rating}/5</p>
+                {review.comment && <p>{review.comment}</p>}
+              </div>
+            ) : started ? (
+              <RatingForm
+                booking={b}
+                user={user}
+                fullName={fullName}
+                onSubmitted={handleReviewed}
+              />
+            ) : (
+              <p className="rate-wait">
+                You can rate this helper once the booking date ({formatDate(b.start_date)}) arrives.
+              </p>
+            )
+          )}
+        </div>
+      </div>
+    )
   }
 
   if (!user) {
@@ -271,7 +350,7 @@ function MyBookings({ onNavigate, user }) {
     )
   }
 
-  return (
+    return (
     <main>
       <h2>Welcome{fullName ? `, ${fullName}` : ''}</h2>
       <p className="dashboard-sub">
@@ -296,11 +375,7 @@ function MyBookings({ onNavigate, user }) {
                   <h4>{l.name}</h4>
                   <p>{l.role} · {l.experience}</p>
                   <p>{l.location}</p>
-                  {l.rating != null ? (
-                    <p className="rating">⭐ {l.rating}</p>
-                  ) : (
-                    <p className="no-rating">No ratings yet</p>
-                  )}
+                  <RatingLine helper={l} />
                   {l.salary && <p>₹{l.salary}/month</p>}
                   {l.verified ? (
                     <span className="badge verified">✓ Verified</span>
@@ -312,46 +387,64 @@ function MyBookings({ onNavigate, user }) {
             ))
           )}
 
-          <h3>Booking requests</h3>
-          {actionError && <p className="dash-error">{actionError}</p>}
-          {bookings.length === 0 ? (
-            <p className="dashboard-sub">No booking requests yet.</p>
-          ) : (
-            bookings.map((b) => (
-              <div key={b.id} className="dash-card">
-                <div className="dash-card-body">
-                  <h4>{b.customer_name}</h4>
-                  <p>Phone: {b.customer_phone}</p>
-                  <p><strong>Start date:</strong> {formatDate(b.start_date)}</p>
-                  {b.notes && <p><strong>Note:</strong> {b.notes}</p>}
-                  <StatusBadge status={b.status} />
-                  {(b.status ?? 'Pending') === 'Pending' && (
-                    <div className="dash-actions">
-                      <button
-                        className="accept-btn"
-                        disabled={updatingId === b.id}
-                        onClick={() => updateStatus(b.id, 'Accepted')}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="decline-btn"
-                        disabled={updatingId === b.id}
-                        onClick={() => updateStatus(b.id, 'Declined')}
-                      >
-                        Decline
-                      </button>
+          <div className="dash-columns">
+            <section className="dash-col">
+              <h3>Booking requests</h3>
+              {actionError && <p className="dash-error">{actionError}</p>}
+              {incoming.length === 0 ? (
+                <p className="dashboard-sub">No booking requests yet.</p>
+              ) : (
+                incoming.map((b) => (
+                  <div key={b.id} className="dash-card">
+                    <div className="dash-card-body">
+                      <h4>{b.customer_name}</h4>
+                      <p>Phone: {b.customer_phone}</p>
+                      <p><strong>Start date:</strong> {formatDate(b.start_date)}</p>
+                      {b.notes && <p><strong>Note:</strong> {b.notes}</p>}
+                      <StatusBadge status={b.status} />
+                      {(b.status ?? 'Pending') === 'Pending' && (
+                        <div className="dash-actions">
+                          <button
+                            className="accept-btn"
+                            disabled={updatingId === b.id}
+                            onClick={() => updateStatus(b.id, 'Accepted')}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            className="decline-btn"
+                            disabled={updatingId === b.id}
+                            onClick={() => updateStatus(b.id, 'Declined')}
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                ))
+              )}
+            </section>
+
+            <section className="dash-col">
+              <h3>Your bookings</h3>
+              {myBookings.length === 0 ? (
+                <div className="dashboard-empty">
+                  <p>You haven't booked anyone yet.</p>
+                  <button className="primary-btn" onClick={() => onNavigate('browse')}>
+                    Browse Helpers
+                  </button>
                 </div>
-              </div>
-            ))
-          )}
+              ) : (
+                myBookings.map(renderMyBooking)
+              )}
+            </section>
+          </div>
         </>
       ) : (
         <>
           <h3>Your bookings</h3>
-          {bookings.length === 0 ? (
+          {myBookings.length === 0 ? (
             <div className="dashboard-empty">
               <p>You haven't booked anyone yet.</p>
               <button className="primary-btn" onClick={() => onNavigate('browse')}>
@@ -359,57 +452,7 @@ function MyBookings({ onNavigate, user }) {
               </button>
             </div>
           ) : (
-            bookings.map((b) => {
-              const h = helpersById[b.helper_id]
-              const status = b.status ?? 'Pending'
-              const review = reviewsByBooking[b.id]
-              return (
-                <div key={b.id} className="dash-card">
-                  <Avatar name={h?.name} url={h?.photo_url} />
-                  <div className="dash-card-body">
-                    <h4>{h ? h.name : 'Helper no longer available'}</h4>
-                    {h && <p>{h.role} · {h.experience}</p>}
-                    {h && <p>{h.location}</p>}
-                    {h && (h.rating != null ? (
-                      <p className="rating">⭐ {h.rating}</p>
-                    ) : (
-                      <p className="no-rating">No ratings yet</p>
-                    ))}
-                    {h?.salary && <p>₹{h.salary}/month</p>}
-                    {h && (h.verified ? (
-                      <span className="badge verified">✓ Verified</span>
-                    ) : (
-                      <span className="badge pending">Verification pending</span>
-                    ))}
-                    <p><strong>Booked for:</strong> {formatDate(b.start_date)}</p>
-                    {b.notes && <p><strong>Your note:</strong> {b.notes}</p>}
-                    <StatusBadge status={status} />
-                    {status === 'Accepted' && (
-                      <p>The helper accepted your request and can contact you on the number you provided.</p>
-                    )}
-                    {status === 'Declined' && (
-                      <p>The helper declined this request. You can browse other helpers.</p>
-                    )}
-
-                    {status === 'Accepted' && (
-                      review ? (
-                        <div className="your-review">
-                          <p className="rating">Your review: ⭐ {review.rating}/5</p>
-                          {review.comment && <p>{review.comment}</p>}
-                        </div>
-                      ) : (
-                        <RatingForm
-                          booking={b}
-                          user={user}
-                          fullName={fullName}
-                          onSubmitted={handleReviewed}
-                        />
-                      )
-                    )}
-                  </div>
-                </div>
-              )
-            })
+            myBookings.map(renderMyBooking)
           )}
         </>
       )}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { cleanPhone, isValidPhone } from './phone'
 
 function Signup({ onNavigate }) {
   const [form, setForm] = useState({
@@ -12,12 +13,18 @@ function Signup({ onNavigate }) {
   const [message, setMessage] = useState('')
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm({ ...form, [name]: name === 'phone' ? cleanPhone(value) : value })
   }
 
   const handleSignup = async (userType, destination) => {
     if (!form.email || !form.password || !form.fullName) {
       setMessage('Please fill in your name, email, and password first.')
+      return
+    }
+
+    if (!isValidPhone(form.phone)) {
+      setMessage('Please enter a valid 10-digit mobile number.')
       return
     }
 
@@ -56,6 +63,8 @@ function Signup({ onNavigate }) {
     }
   }
 
+  const phoneOk = isValidPhone(form.phone)
+
   return (
     <div className="auth-container">
       <h2>Create Account</h2>
@@ -77,12 +86,17 @@ function Signup({ onNavigate }) {
       />
 
       <input
-        type="text"
+        type="tel"
+        inputMode="numeric"
         name="phone"
-        placeholder="Phone Number"
+        placeholder="10-digit mobile number"
         value={form.phone}
         onChange={handleChange}
+        maxLength={10}
       />
+      {form.phone.length > 0 && !phoneOk && (
+        <p className="field-error">Enter a valid 10-digit mobile number.</p>
+      )}
 
       <input
         type="password"
@@ -97,7 +111,7 @@ function Signup({ onNavigate }) {
       <button
         className="primary-btn"
         onClick={() => handleSignup('customer', 'browse')}
-        disabled={submitting}
+        disabled={submitting || !phoneOk}
       >
         {submitting ? 'Creating account...' : 'Hire Help'}
       </button>
@@ -105,7 +119,7 @@ function Signup({ onNavigate }) {
       <button
         className="secondary-btn"
         onClick={() => handleSignup('helper', 'services')}
-        disabled={submitting}
+        disabled={submitting || !phoneOk}
       >
         {submitting ? 'Creating account...' : 'Offer My Services'}
       </button>

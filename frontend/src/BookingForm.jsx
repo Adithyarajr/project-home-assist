@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { cleanPhone, isValidPhone } from './phone'
 
 function BookingForm({ helper, user, onClose }) {
   const [customerName, setCustomerName] = useState('')
@@ -9,11 +10,24 @@ function BookingForm({ helper, user, onClose }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  const isOwnListing = !!user && helper.user_id === user.id
+  const phoneOk = isValidPhone(customerPhone)
+
   async function handleSubmit(e) {
     e.preventDefault()
 
     if (!user) {
       setError('Please log in to book a helper.')
+      return
+    }
+
+    if (isOwnListing) {
+      setError("You can't book your own listing.")
+      return
+    }
+
+    if (!phoneOk) {
+      setError('Please enter a valid 10-digit mobile number.')
       return
     }
 
@@ -52,6 +66,12 @@ function BookingForm({ helper, user, onClose }) {
           </p>
         )}
 
+        {isOwnListing && (
+          <p style={{ color: '#fbbf24', fontSize: '0.9rem' }}>
+            This is your own listing, so you can't book it.
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label>
             Your name
@@ -67,10 +87,16 @@ function BookingForm({ helper, user, onClose }) {
             Your phone number
             <input
               type="tel"
+              inputMode="numeric"
+              placeholder="10-digit mobile number"
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              onChange={(e) => setCustomerPhone(cleanPhone(e.target.value))}
+              maxLength={10}
               required
             />
+            {customerPhone.length > 0 && !phoneOk && (
+              <span className="field-error">Enter a valid 10-digit mobile number.</span>
+            )}
           </label>
 
           <label>
@@ -98,7 +124,11 @@ function BookingForm({ helper, user, onClose }) {
             <button type="button" className="cancel-btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="book-btn" disabled={submitting || !user}>
+            <button
+              type="submit"
+              className="book-btn"
+              disabled={submitting || !user || isOwnListing || !phoneOk}
+            >
               {submitting ? 'Booking...' : 'Confirm Booking'}
             </button>
           </div>

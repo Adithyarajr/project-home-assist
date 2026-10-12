@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './supabaseClient'
+import { cleanPhone, isValidPhone } from './phone'
 
 function BecomeHelper({ user }) {
   const [form, setForm] = useState({
@@ -16,14 +17,22 @@ function BecomeHelper({ user }) {
   const [message, setMessage] = useState('')
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setForm({ ...form, [name]: name === 'phone' ? cleanPhone(value) : value })
   }
+
+  const phoneOk = isValidPhone(form.phone)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!user) {
       setMessage('Please log in before listing your services.')
+      return
+    }
+
+    if (!phoneOk) {
+      setMessage('Please enter a valid 10-digit mobile number.')
       return
     }
 
@@ -91,13 +100,18 @@ function BecomeHelper({ user }) {
         />
 
         <input
-          type="text"
+          type="tel"
+          inputMode="numeric"
           name="phone"
-          placeholder="Phone Number"
+          placeholder="10-digit mobile number"
           value={form.phone}
           onChange={handleChange}
+          maxLength={10}
           required
         />
+        {form.phone.length > 0 && !phoneOk && (
+          <p className="field-error">Enter a valid 10-digit mobile number.</p>
+        )}
 
         <input
           type="text"
@@ -153,7 +167,11 @@ function BecomeHelper({ user }) {
           onChange={(e) => setPhotoFile(e.target.files[0])}
         />
 
-        <button className="primary-btn" type="submit" disabled={submitting}>
+        <button
+          className="primary-btn"
+          type="submit"
+          disabled={submitting || !phoneOk}
+        >
           {submitting ? 'Submitting...' : 'Submit Profile'}
         </button>
 

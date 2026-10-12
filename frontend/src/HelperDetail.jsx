@@ -33,7 +33,14 @@ function HelperDetail({ helper, onClose, onBook }) {
             <p>{helper.role} · {helper.experience}</p>
             <p>{helper.location}</p>
             {helper.rating != null ? (
-  <p className="rating">⭐ {helper.rating}</p>
+  <p className="rating">
+    ⭐ {helper.rating}
+    {helper.review_count > 0 && (
+      <span className="review-count">
+        {' '}({helper.review_count} {helper.review_count === 1 ? 'review' : 'reviews'})
+      </span>
+    )}
+  </p>
 ) : (
   <p className="no-rating">No ratings yet</p>
 )}

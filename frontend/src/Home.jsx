@@ -1,6 +1,6 @@
 import HelperCard from "./HelperCard";
 
-function Home({ onNavigate, helpers }) {
+function Home({ onNavigate, helpers, user }) {
   return (
     <>
       {/* Hero Section */}
@@ -102,6 +102,7 @@ function Home({ onNavigate, helpers }) {
             <HelperCard
               key={helper.id}
               helper={helper}
+              user={user}
             />
           ))}
         </div>

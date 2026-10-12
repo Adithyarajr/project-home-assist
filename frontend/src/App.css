@@ -1071,3 +1071,44 @@ html, body {
   padding-top: 14px;
   border-top: 1px solid #2a2a35;
 }
+.review-count {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.rate-wait {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2a2a35;
+  font-style: italic;
+}
+.field-error {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0;
+  text-align: left;
+}
+
+.dash-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.dash-col {
+  min-width: 0;
+}
+
+.dash-col .dash-card {
+  max-width: none;
+  margin: 0 0 16px 0;
+}
+
+@media (max-width: 760px) {
+  .dash-columns {
+    grid-template-columns: 1fr;
+  }
+}
