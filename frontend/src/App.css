@@ -1112,3 +1112,27 @@ html, body {
     grid-template-columns: 1fr;
   }
 }
+.listing-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #c4b5fd;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 10px;
+}
+
+.mini-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mini-photo.avatar-fallback {
+  font-size: 1.2rem;
+}

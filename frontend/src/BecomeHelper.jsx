@@ -1,33 +1,78 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { cleanPhone, isValidPhone } from './phone'
+import Avatar from './Avatar'
 
-function BecomeHelper({ user }) {
-  const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    city: '',
-    area: '',
-    role: 'Cook',
-    experience: '',
-    salary: '',
-  })
+const ALL_ROLES = [
+  'Cook',
+  'Housekeeper',
+  'Babysitter',
+  'Dishwasher',
+  'Gardener',
+  'Nanny for Elderly',
+  'Nanny for Pets',
+  'Driver',
+  'Caretaker',
+]
+
+const emptyForm = {
+  name: '',
+  phone: '',
+  city: '',
+  area: '',
+  role: '',
+  experience: '',
+  salary: '',
+}
+
+function BecomeHelper({ user, onNavigate }) {
+  const [existing, setExisting] = useState(null)
+  const [form, setForm] = useState(emptyForm)
   const [photoFile, setPhotoFile] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+
+  const userId = user?.id
+
+  useEffect(() => {
+    if (!userId) return
+
+    async function loadExisting() {
+      const { data } = await supabase
+        .from('helpers')
+        .select('id, name, phone, photo_url, role')
+        .eq('user_id', userId)
+        .order('id')
+      setExisting(data ?? [])
+    }
+
+    loadExisting()
+  }, [userId])
+
+  const takenRoles = (existing ?? []).map((l) => l.role)
+  const availableRoles = ALL_ROLES.filter((r) => !takenRoles.includes(r))
+  const roleValue = availableRoles.includes(form.role) ? form.role : availableRoles[0]
+
+  const first = existing && existing.length > 0 ? existing[0] : null
+  const isSecond = !!first
+  const limitReached = existing !== null && existing.length >= 2
+  const phoneOk = isSecond || isValidPhone(form.phone)
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm({ ...form, [name]: name === 'phone' ? cleanPhone(value) : value })
   }
 
-  const phoneOk = isValidPhone(form.phone)
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!user) {
       setMessage('Please log in before listing your services.')
+      return
+    }
+
+    if (limitReached) {
+      setMessage('You can have at most 2 listings per account.')
       return
     }
 
@@ -39,9 +84,9 @@ function BecomeHelper({ user }) {
     setSubmitting(true)
     setMessage('')
 
-    let photoUrl = null
+    let photoUrl = first ? first.photo_url : null
 
-    if (photoFile) {
+    if (!first && photoFile) {
       const fileName = `${Date.now()}-${photoFile.name}`
       const { error: uploadError } = await supabase.storage
         .from('helper-photos')
@@ -61,56 +106,122 @@ function BecomeHelper({ user }) {
       photoUrl = urlData.publicUrl
     }
 
-    const { error } = await supabase.from('helpers').insert({
-      name: form.name,
-      phone: form.phone,
-      location: `${form.area}, ${form.city}`,
-      role: form.role,
-      experience: `${form.experience} years`,
-      salary: form.salary,
-      photo_url: photoUrl,
-      verified: false,
-      user_id: user.id,
-    })
+    const { data, error } = await supabase
+      .from('helpers')
+      .insert({
+        name: first ? first.name : form.name,
+        phone: first ? first.phone : form.phone,
+        location: `${form.area}, ${form.city}`,
+        role: roleValue,
+        experience: `${form.experience} years`,
+        salary: form.salary,
+        photo_url: photoUrl,
+        verified: false,
+        user_id: user.id,
+      })
+      .select('id, name, phone, photo_url, role')
+      .single()
 
     setSubmitting(false)
 
     if (error) {
-      setMessage('Something went wrong. Please try again.')
       console.error(error)
-    } else {
-      setMessage('Profile submitted! We will review it shortly.')
-      setForm({ name: '', phone: '', city: '', area: '', role: 'Cook', experience: '', salary: '' })
-      setPhotoFile(null)
+      const text = error.message || ''
+      if (text.includes('at most 2')) {
+        setMessage('You can have at most 2 listings per account.')
+      } else if (text.includes('already have a listing')) {
+        setMessage('You already have a listing for this role.')
+      } else {
+        setMessage('Something went wrong. Please try again.')
+      }
+      return
     }
+
+    setExisting((prev) => [...(prev ?? []), data])
+    setForm(emptyForm)
+    setPhotoFile(null)
+    setMessage('Profile submitted! We will review it shortly.')
+  }
+
+  if (!user) {
+    return (
+      <div className="auth-container">
+        <h2>List Your Services</h2>
+        <p>Please log in to list your services.</p>
+      </div>
+    )
+  }
+
+  if (existing === null) {
+    return (
+      <div className="auth-container">
+        <p>Loading...</p>
+      </div>
+    )
+  }
+
+  if (limitReached) {
+    return (
+      <div className="auth-container">
+        <h2>List Your Services</h2>
+        {message && <p>{message}</p>}
+        <p>
+          You've reached the limit of 2 listings per account. You can see them
+          on your Dashboard.
+        </p>
+        {onNavigate && (
+          <button className="primary-btn" onClick={() => onNavigate('bookings')}>
+            Go to Dashboard
+          </button>
+        )}
+      </div>
+    )
   }
 
   return (
     <div className="auth-container">
       <h2>List Your Services</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
+      {isSecond ? (
+        <div className="listing-note">
+          <Avatar name={first.name} url={first.photo_url} className="mini-photo" />
+          <span>
+            Your second listing uses the same name, phone number and photo as
+            your first one ({first.name}, {first.phone}).
+          </span>
+        </div>
+      ) : (
+        <p className="dashboard-sub">
+          You can list up to 2 services, for example Cook and Driver.
+        </p>
+      )}
 
-        <input
-          type="tel"
-          inputMode="numeric"
-          name="phone"
-          placeholder="10-digit mobile number"
-          value={form.phone}
-          onChange={handleChange}
-          maxLength={10}
-          required
-        />
-        {form.phone.length > 0 && !phoneOk && (
-          <p className="field-error">Enter a valid 10-digit mobile number.</p>
+      <form onSubmit={handleSubmit}>
+        {!isSecond && (
+          <>
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+
+            <input
+              type="tel"
+              inputMode="numeric"
+              name="phone"
+              placeholder="10-digit mobile number"
+              value={form.phone}
+              onChange={handleChange}
+              maxLength={10}
+              required
+            />
+            {form.phone.length > 0 && !phoneOk && (
+              <p className="field-error">Enter a valid 10-digit mobile number.</p>
+            )}
+          </>
         )}
 
         <input
@@ -131,16 +242,10 @@ function BecomeHelper({ user }) {
           required
         />
 
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option>Cook</option>
-          <option>Housekeeper</option>
-          <option>Babysitter</option>
-          <option>Dishwasher</option>
-          <option>Gardener</option>
-          <option>Nanny for Elderly</option>
-          <option>Nanny for Pets</option>
-          <option>Driver</option>
-          <option>Caretaker</option>
+        <select name="role" value={roleValue} onChange={handleChange}>
+          {availableRoles.map((r) => (
+            <option key={r}>{r}</option>
+          ))}
         </select>
 
         <input
@@ -161,11 +266,13 @@ function BecomeHelper({ user }) {
           required
         />
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setPhotoFile(e.target.files[0])}
-        />
+        {!isSecond && (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setPhotoFile(e.target.files[0])}
+          />
+        )}
 
         <button
           className="primary-btn"

@@ -143,7 +143,7 @@ function App() {
         {/* List Your Services */}
         {currentPage === 'services' && (
           user ? (
-            <BecomeHelper user={user} />
+            <BecomeHelper user={user} onNavigate={setCurrentPage} />
           ) : (
             <Login onNavigate={setCurrentPage} />
           )

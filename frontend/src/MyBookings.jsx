@@ -149,33 +149,32 @@ function MyBookings({ onNavigate, user }) {
         .eq('id', userId)
         .maybeSingle()
 
-      const type = profile?.user_type ?? 'customer'
-      setUserType(type)
+      setUserType(profile?.user_type ?? 'customer')
       setFullName(profile?.full_name ?? '')
 
-      if (type === 'helper') {
-        const { data: listings } = await supabase
-          .from('helpers')
+      // Listings this account owns (anyone can have them, whatever they signed up as)
+      const { data: listings } = await supabase
+        .from('helpers')
+        .select('*')
+        .eq('user_id', userId)
+        .order('id')
+
+      const mine = listings ?? []
+      setMyListings(mine)
+
+      const listingIds = mine.map((l) => l.id)
+      if (listingIds.length > 0) {
+        const { data } = await supabase
+          .from('bookings')
           .select('*')
-          .eq('user_id', userId)
-
-        const mine = listings ?? []
-        setMyListings(mine)
-
-        const ids = mine.map((l) => l.id)
-        if (ids.length > 0) {
-          const { data } = await supabase
-            .from('bookings')
-            .select('*')
-            .in('helper_id', ids)
-            .order('created_at', { ascending: false })
-          setIncoming(data ?? [])
-        } else {
-          setIncoming([])
-        }
+          .in('helper_id', listingIds)
+          .order('created_at', { ascending: false })
+        setIncoming(data ?? [])
+      } else {
+        setIncoming([])
       }
 
-      // Bookings this person made as a customer (helpers can book too)
+      // Bookings this person made as a customer
       const { data: mineBookings } = await supabase
         .from('bookings')
         .select('*')
@@ -216,6 +215,9 @@ function MyBookings({ onNavigate, user }) {
 
     load()
   }, [userId])
+
+  // Anyone who signed up as a helper, or who has listed a service, gets the helper layout
+  const isHelper = userType === 'helper' || myListings.length > 0
 
   async function updateStatus(bookingId, newStatus) {
     setUpdatingId(bookingId)
@@ -350,16 +352,16 @@ function MyBookings({ onNavigate, user }) {
     )
   }
 
-    return (
+  return (
     <main>
       <h2>Welcome{fullName ? `, ${fullName}` : ''}</h2>
       <p className="dashboard-sub">
-        {userType === 'helper' ? 'Helper account' : 'Customer account'}
+        {isHelper ? 'Helper account' : 'Customer account'}
       </p>
 
-      {userType === 'helper' ? (
+      {isHelper ? (
         <>
-          <h3>Your listing</h3>
+          <h3>Your listing{myListings.length > 1 ? 's' : ''}</h3>
           {myListings.length === 0 ? (
             <div className="dashboard-empty">
               <p>You haven't listed your services yet.</p>
