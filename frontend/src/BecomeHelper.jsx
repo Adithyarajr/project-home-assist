@@ -81,6 +81,19 @@ function BecomeHelper({ user, onNavigate }) {
       return
     }
 
+    const years = Number(form.experience)
+    const pay = Number(form.salary)
+
+    if (!Number.isInteger(years) || years < 0 || years > 50) {
+      setMessage('Experience must be a whole number between 0 and 50 years.')
+      return
+    }
+
+    if (!Number.isInteger(pay) || pay < 1000 || pay > 100000) {
+      setMessage('Salary must be a whole number between ₹1,000 and ₹100,000 per month.')
+      return
+    }
+
     setSubmitting(true)
     setMessage('')
 
@@ -113,8 +126,8 @@ function BecomeHelper({ user, onNavigate }) {
         phone: first ? first.phone : form.phone,
         location: `${form.area}, ${form.city}`,
         role: roleValue,
-        experience: `${form.experience} years`,
-        salary: form.salary,
+        experience: `${years} years`,
+        salary: String(pay),
         photo_url: photoUrl,
         verified: false,
         user_id: user.id,
@@ -131,6 +144,12 @@ function BecomeHelper({ user, onNavigate }) {
         setMessage('You can have at most 2 listings per account.')
       } else if (text.includes('already have a listing')) {
         setMessage('You already have a listing for this role.')
+      } else if (
+        text.includes('Experience must') ||
+        text.includes('Salary must') ||
+        text.includes('Phone number must')
+      ) {
+        setMessage(text)
       } else {
         setMessage('Something went wrong. Please try again.')
       }
@@ -250,17 +269,25 @@ function BecomeHelper({ user, onNavigate }) {
 
         <input
           type="number"
+          inputMode="numeric"
           name="experience"
-          placeholder="Years of Experience"
+          placeholder="Years of experience (0 to 50)"
+          min="0"
+          max="50"
+          step="1"
           value={form.experience}
           onChange={handleChange}
           required
         />
 
         <input
-          type="text"
+          type="number"
+          inputMode="numeric"
           name="salary"
-          placeholder="Expected Monthly Salary"
+          placeholder="Expected monthly salary in ₹ (1000 to 100000)"
+          min="1000"
+          max="100000"
+          step="1"
           value={form.salary}
           onChange={handleChange}
           required
